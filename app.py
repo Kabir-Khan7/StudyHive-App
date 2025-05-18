@@ -138,6 +138,8 @@ class Database:
         self.notifications = []  # List of Notification
 
     def add_user(self, user):
+        if not user.username.strip():
+            raise ValueError("Username cannot be empty")
         if any(u.username.lower() == user.username.lower() for u in self.users.values()):
             raise ValueError("Username already taken")
         self.users[user.user_id] = user
@@ -154,11 +156,12 @@ class Database:
         creator = self.get_user(community.creator_id)
         if creator:
             creator.join_community(community.community_id)
+            self.award_badge(creator.user_id, "Community Leader")
 
     def add_post(self, post):
         self.posts.append(post)
         is_first = not any(p.user_id == post.user_id for p in self.posts[:-1])
-        if is_first:
+        if is_first and post.user_id in self.users:
             self.award_badge(post.user_id, "First Post")
 
     def add_like(self, post_id, user_id):
@@ -177,6 +180,8 @@ class Database:
 
     def add_study_room(self, room):
         self.study_rooms[room.room_id] = room
+        if room.creator_id in self.users:
+            self.award_badge(room.creator_id, "Study Planner")
 
     def award_badge(self, user_id, badge_name):
         badge = Badge(str(uuid.uuid4()), badge_name, user_id)
