@@ -11,3 +11,4 @@ streamlit-webrtc==0.47.7
 aiohttp==3.10.10
 pytest==8.3.3
 requests==2.32.3
+plotly
